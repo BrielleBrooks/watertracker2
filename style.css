@@ -20,7 +20,7 @@
   --subtle: clamp(14px, 3.2vw, 18px);
 
   /* NEW: shared top offset so buttons and content align perfectly */
-   --toolbar-top: clamp(38px, 5vw, 56px);
+    --toolbar-top: clamp(50px, 6vw, 72px);
 }
 
 *{ box-sizing: border-box; }
