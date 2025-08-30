@@ -249,14 +249,24 @@ closeStatsBtn.addEventListener('click', closeStats);
 statsModal.addEventListener('click', (e)=>{ if(e.target === statsModal) closeStats(); });
 
 saveSettingsBtn.addEventListener('click', () => {
+  const prevUnit = state.unit;
   const newUnit = unitSelect.value;
   const goalVal = Number(goalInput.value) || 0;
   const incVal  = Number(incrementInput.value) || 0;
 
-  state.unit = newUnit;
-  state.goalMl     = Math.max(0, unitToMl(goalVal, newUnit));
-  state.incrementMl= Math.max(1, unitToMl(incVal, newUnit)); // ensure at least 1 ml
-  state.currentMl  = roundMl(state.currentMl); // normalize current total too
+  state.unit        = newUnit;
+  state.goalMl      = Math.max(0, unitToMl(goalVal, newUnit));
+  state.incrementMl = Math.max(1, unitToMl(incVal, newUnit));
+
+  // If unit changed, zero out the current meter to avoid conversion leftovers/decimals
+  if (newUnit !== prevUnit) {
+    state.currentMl = 0;
+    // also refresh the "last date" tag for clarity
+    localStorage.setItem(LAST_DATE_KEY, todayKey());
+  } else {
+    // normalize just in case
+    state.currentMl = roundMl(state.currentMl);
+  }
 
   save(); closeSettings(); updateUI(); updateChart();
 });
