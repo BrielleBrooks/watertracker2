@@ -169,3 +169,7 @@ input[type="number"]:focus, .select-wrap select:focus{
 }
 .stats-btn:hover{ transform: translateY(-1px); }
 .stats-btn img{ filter: none; }
+
+.card {
+  box-shadow: none !important;
+}
