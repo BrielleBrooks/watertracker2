@@ -83,23 +83,24 @@ body {
 /* -------- ICON / BUTTONS -------- */
 .settings-btn{
   position: absolute;
-  top: 24px;         /* moved down from the very top */
+  top: 32px;         /* moved further down */
   right: 24px;
   background: var(--control-bg);
   border: 1px solid var(--control-border);
   border-radius: var(--btn-radius);
-  width: clamp(36px, 3vw, 44px);   /* consistent square size */
-  height: clamp(36px, 3vw, 44px);
+  width: var(--btn-size);   /* same as pill buttons */
+  height: var(--btn-size);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform .15s ease;
+  padding: 0;
 }
 .settings-btn:hover{ transform: translateY(-1px); }
 .settings-btn img{
   filter: none;
-  width: clamp(18px, 2vw, 22px);
+  width: clamp(20px, 2.5vw, 24px); /* slightly bigger so it feels balanced */
   height: auto;
 }
 
@@ -171,24 +172,24 @@ input[type="number"]:focus, .select-wrap select:focus{
 /* -------- STATS BUTTON -------- */
 .stats-btn{
   position: absolute !important;
-  top: 24px !important;   /* aligned with settings button */
+  top: 32px !important;   /* aligned with settings button */
   left: 24px !important;
   z-index: 3;
   background: var(--control-bg);
   border: 1px solid var(--control-border);
   border-radius: var(--btn-radius);
-  width: clamp(36px, 3vw, 44px);
-  height: clamp(36px, 3vw, 44px);
+  width: var(--btn-size);   /* same as pill buttons */
+  height: var(--btn-size);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform .15s ease;
-  padding: 0; /* let width/height define size */
+  padding: 0;
 }
 .stats-btn:hover{ transform: translateY(-1px); }
 .stats-btn img{
   filter: none;
-  width: clamp(18px, 2vw, 22px);
+  width: clamp(20px, 2.5vw, 24px);
   height: auto;
 }
