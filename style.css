@@ -34,7 +34,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent !important; /* override the dark background */
+  background: transparent !important; /* blend with Notion */
   color: var(--text);
   font-family: var(--font);
 }
@@ -46,9 +46,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;     /* rounded corners like Applify */
+  border-radius: 20px;     /* rounded corners */
   overflow: hidden;        /* clip everything inside */
-  background: white;       /* change to transparent if you want dark mode support */
+  background: white;       /* use transparent for dark mode support */
 }
 
 .card {
@@ -56,7 +56,7 @@ body {
   height: 100%;
   background: var(--card);
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  /* box-shadow removed */
 }
 
 .tracker {
