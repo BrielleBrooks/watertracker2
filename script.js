@@ -1,7 +1,9 @@
-
 // ===== Persistent Water Tracker with stats, midnight rollover & seamless animated waves + gentle bobbing =====
 const ML_PER_LITER = 1000;
 const ML_PER_OUNCE = 29.5735295625;
+
+// Small helper to keep all stored values in whole milliliters
+const roundMl = (n) => Math.round(Number(n) || 0);
 
 // UI refs
 const waterAmountEl   = document.getElementById('water-amount');
@@ -52,23 +54,31 @@ const yesterdayKey = () => {
 };
 
 function mlToUnit(ml, unit){
+  const m = Number(ml) || 0;
   switch(unit){
-    case 'ml': return ml;
-    case 'oz': return ml / ML_PER_OUNCE;
-    default:   return ml / ML_PER_LITER;
+    case 'ml': return m;
+    case 'oz': return m / ML_PER_OUNCE;
+    default:   return m / ML_PER_LITER; // liters
   }
 }
 function unitToMl(val, unit){
+  const v = Number(val) || 0;
   switch(unit){
-    case 'ml': return val;
-    case 'oz': return val * ML_PER_OUNCE;
-    default:   return val * ML_PER_LITER;
+    case 'ml': return roundMl(v);
+    case 'oz': return roundMl(v * ML_PER_OUNCE);
+    default:   return roundMl(v * ML_PER_LITER); // liters
   }
 }
+
+// Format for display: ml + oz => whole numbers; liters => 2 decimals max
 function fmt(val, unit){
-  return unit === 'ml' ? Math.round(val).toString()
-                       : (Math.round(val * 100) / 100).toString();
+  const n = Number(val) || 0;
+  if (unit === 'ml') return Math.round(n).toString();
+  if (unit === 'oz') return Math.round(n).toString();
+  // liters
+  return (Math.round(n * 100) / 100).toString();
 }
+
 function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
 function load(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ state = Object.assign(state, JSON.parse(raw)); } }catch(e){} }
 
@@ -177,17 +187,16 @@ function scheduleMidnightRollover(){
 }
 
 // ---------- Seamless wave builder (sine translation) ----------
-// Softer look = longer wavelength, lower amplitude; now slower drift + a touch more bob.
 const TWO_PI = Math.PI * 2;
 
 // Tunables
-const WAVE1_AMP    = 8;     // px (kept soft)
+const WAVE1_AMP    = 8;     // px
 const WAVE2_AMP    = 6;     // px
 const WAVE1_LAMBDA = 140;   // px
 const WAVE2_LAMBDA = 110;   // px
-const H_SPEED      = 0.025; // radians per frame (slower horizontal drift; was 0.04)
-const BOB_SPEED    = 0.025; // vertical bob speed (kept smooth)
-const BOB_AMP      = 5;     // px (a bit more up/down; was 3)
+const H_SPEED      = 0.025; // radians per frame
+const BOB_SPEED    = 0.025; // vertical bob speed
+const BOB_AMP      = 5;     // px
 const SAMPLE_STEP  = 6;     // x step in px
 const XPAD         = 16;    // extend to avoid edge aliasing
 
@@ -203,15 +212,12 @@ function buildSineFill(phase, waterY, amp, lambda, step = SAMPLE_STEP, xPad = XP
   return d;
 }
 
-// ---------- Animation loop (JS-only bobbing; no CSS keyframes) ----------
+// ---------- Animation loop ----------
 let phase = 0;
 let tBob  = 0;
 
 function animate(){
-  // horizontal wave motion; wrapping at 2π is seamless
   phase = (phase + H_SPEED) % TWO_PI;
-
-  // gentle vertical bob (slightly larger amplitude)
   tBob  += BOB_SPEED;
   const bob = Math.sin(tBob) * BOB_AMP;
 
@@ -225,8 +231,14 @@ function animate(){
 }
 
 // ---------- events ----------
-increaseBtn.addEventListener('click', () => { state.currentMl += state.incrementMl; save(); updateUI(); updateChart(); });
-decreaseBtn.addEventListener('click', () => { state.currentMl = Math.max(0, state.currentMl - state.incrementMl); save(); updateUI(); updateChart(); });
+increaseBtn.addEventListener('click', () => {
+  state.currentMl = roundMl(state.currentMl + state.incrementMl);
+  save(); updateUI(); updateChart();
+});
+decreaseBtn.addEventListener('click', () => {
+  state.currentMl = Math.max(0, roundMl(state.currentMl - state.incrementMl));
+  save(); updateUI(); updateChart();
+});
 
 settingsBtn.addEventListener('click', openSettings);
 closeSettingsBtn.addEventListener('click', closeSettings);
@@ -238,11 +250,14 @@ statsModal.addEventListener('click', (e)=>{ if(e.target === statsModal) closeSta
 
 saveSettingsBtn.addEventListener('click', () => {
   const newUnit = unitSelect.value;
-  const goalVal = parseFloat(goalInput.value || '0');
-  const incVal  = parseFloat(incrementInput.value || '0');
+  const goalVal = Number(goalInput.value) || 0;
+  const incVal  = Number(incrementInput.value) || 0;
+
   state.unit = newUnit;
-  state.goalMl = Math.max(0, unitToMl(goalVal, newUnit));
-  state.incrementMl = Math.max(0, unitToMl(incVal, newUnit));
+  state.goalMl     = Math.max(0, unitToMl(goalVal, newUnit));
+  state.incrementMl= Math.max(1, unitToMl(incVal, newUnit)); // ensure at least 1 ml
+  state.currentMl  = roundMl(state.currentMl); // normalize current total too
+
   save(); closeSettings(); updateUI(); updateChart();
 });
 
@@ -250,6 +265,12 @@ saveSettingsBtn.addEventListener('click', () => {
 load();
 loadHistory();
 rolloverIfNeededOnLoad();
+
+// Normalize any legacy stored floats to whole milliliters
+state.goalMl      = roundMl(state.goalMl);
+state.incrementMl = Math.max(1, roundMl(state.incrementMl));
+state.currentMl   = roundMl(state.currentMl);
+
 updateUI();
 scheduleMidnightRollover();
 animate();
