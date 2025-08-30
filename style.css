@@ -154,3 +154,31 @@ input[type="number"]:focus, .select-wrap select:focus{
 }
 .stats-btn:hover{ transform: translateY(-1px); }
 .stats-btn img{ filter: none; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent; /* Let Notion background show through */
+  font-family: var(--font);
+  color: var(--text);
+}
+
+/* Outer container that auto-fits */
+.widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;     /* rounded corners */
+  overflow: hidden;        /* clip inner card to rounded corners */
+  background: white;       /* match Notion light mode */
+}
