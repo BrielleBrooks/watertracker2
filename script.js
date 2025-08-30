@@ -70,13 +70,11 @@ function unitToMl(val, unit){
   }
 }
 
-// Format for display: ml + oz => whole numbers; liters => 2 decimals max
+// Format for display
 function fmt(val, unit){
   const n = Number(val) || 0;
-  if (unit === 'ml') return Math.round(n).toString();
-  if (unit === 'oz') return Math.round(n).toString();
-  // liters
-  return (Math.round(n * 100) / 100).toString();
+  if (unit === 'ml' || unit === 'oz') return Math.round(n).toString();
+  return (Math.round(n * 100) / 100).toString(); // liters
 }
 
 function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
@@ -186,19 +184,17 @@ function scheduleMidnightRollover(){
   }, ms);
 }
 
-// ---------- Seamless wave builder (sine translation) ----------
+// ---------- Seamless wave builder ----------
 const TWO_PI = Math.PI * 2;
-
-// Tunables
-const WAVE1_AMP    = 8;     // px
-const WAVE2_AMP    = 6;     // px
-const WAVE1_LAMBDA = 140;   // px
-const WAVE2_LAMBDA = 110;   // px
-const H_SPEED      = 0.025; // radians per frame
-const BOB_SPEED    = 0.025; // vertical bob speed
-const BOB_AMP      = 5;     // px
-const SAMPLE_STEP  = 6;     // x step in px
-const XPAD         = 16;    // extend to avoid edge aliasing
+const WAVE1_AMP    = 8;
+const WAVE2_AMP    = 6;
+const WAVE1_LAMBDA = 140;
+const WAVE2_LAMBDA = 110;
+const H_SPEED      = 0.025;
+const BOB_SPEED    = 0.025;
+const BOB_AMP      = 5;
+const SAMPLE_STEP  = 6;
+const XPAD         = 16;
 
 function buildSineFill(phase, waterY, amp, lambda, step = SAMPLE_STEP, xPad = XPAD) {
   const k = TWO_PI / lambda;
@@ -215,18 +211,13 @@ function buildSineFill(phase, waterY, amp, lambda, step = SAMPLE_STEP, xPad = XP
 // ---------- Animation loop ----------
 let phase = 0;
 let tBob  = 0;
-
 function animate(){
   phase = (phase + H_SPEED) % TWO_PI;
   tBob  += BOB_SPEED;
   const bob = Math.sin(tBob) * BOB_AMP;
-
   const waterY = currentWaterY + bob;
-
-  // two layered waves, phase shifted for depth
   wave1.setAttribute('d', buildSineFill(phase,           waterY, WAVE1_AMP, WAVE1_LAMBDA));
   wave2.setAttribute('d', buildSineFill(phase + Math.PI, waterY, WAVE2_AMP, WAVE2_LAMBDA));
-
   requestAnimationFrame(animate);
 }
 
@@ -248,25 +239,25 @@ statsBtn.addEventListener('click', openStats);
 closeStatsBtn.addEventListener('click', closeStats);
 statsModal.addEventListener('click', (e)=>{ if(e.target === statsModal) closeStats(); });
 
+// ✅ Fixed: zero out only when the unit changes
 saveSettingsBtn.addEventListener('click', () => {
   const prevUnit = state.unit;
   const newUnit = unitSelect.value;
+
   const goalVal = Number(goalInput.value) || 0;
   const incVal  = Number(incrementInput.value) || 0;
 
-  state.unit        = newUnit;
-  state.goalMl      = Math.max(0, unitToMl(goalVal, newUnit));
-  state.incrementMl = Math.max(1, unitToMl(incVal, newUnit));
+  // update unit
+  state.unit = newUnit;
 
-  // If unit changed, zero out the current meter to avoid conversion leftovers/decimals
+  // if unit changed → reset water meter
   if (newUnit !== prevUnit) {
     state.currentMl = 0;
-    // also refresh the "last date" tag for clarity
-    localStorage.setItem(LAST_DATE_KEY, todayKey());
-  } else {
-    // normalize just in case
-    state.currentMl = roundMl(state.currentMl);
   }
+
+  // always update goal + increment
+  state.goalMl      = Math.max(0, unitToMl(goalVal, newUnit));
+  state.incrementMl = Math.max(1, unitToMl(incVal, newUnit));
 
   save(); closeSettings(); updateUI(); updateChart();
 });
@@ -275,8 +266,6 @@ saveSettingsBtn.addEventListener('click', () => {
 load();
 loadHistory();
 rolloverIfNeededOnLoad();
-
-// Normalize any legacy stored floats to whole milliliters
 state.goalMl      = roundMl(state.goalMl);
 state.incrementMl = Math.max(1, roundMl(state.incrementMl));
 state.currentMl   = roundMl(state.currentMl);
