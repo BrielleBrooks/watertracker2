@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Tracker Widget</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chart.js for the stats modal -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="widget">
+    <div class="tracker card">
+
+      <!-- Stats button (top-left) -->
+      <button class="stats-btn" aria-label="Open stats">
+        <img src="icons/stats-icon.png" alt="Stats" width="22" height="22" />
+      </button>
+
+      <!-- Settings button (top-right) -->
+      <button class="settings-btn" aria-label="Open settings">
+        <img src="icons/settings-icon.png" alt="Settings" width="22" height="22" />
+      </button>
+
+      <div class="controls">
+        <button id="decrease" class="pill-btn" aria-label="Decrease">
+          <img src="icons/down-arrow.png" alt="" width="18" height="18" />
+        </button>
+        <button id="increase" class="pill-btn" aria-label="Increase">
+          <img src="icons/up-arrow.png" alt="" width="18" height="18" />
+        </button>
+      </div>
+
+      <h2 id="water-amount" class="headline">0</h2>
+      <p id="goal-progress" class="subtle">0% of your goal</p>
+
+      <!-- SVG droplet (with dual wave layers for seamless animation + bobbing group) -->
+      <svg id="droplet" viewBox="0 0 375 375" xmlns="http://www.w3.org/2000/svg" aria-label="Water level">
+        <!-- Outline -->
+        <path
+          d="M 322.707031 239.828125 C 322.707031 314.550781 262.144531 375.128906 187.40625 375.128906 
+             C 112.667969 375.128906 52.085938 314.550781 52.085938 239.828125 
+             C 52.085938 165.089844 187.40625 0.0546875 187.40625 0.0546875 
+             C 187.40625 0.0546875 322.707031 165.089844 322.707031 239.828125"
+          fill="none" stroke="#0081cc" stroke-width="4"
+        />
+        <!-- Clip shape -->
+        <clipPath id="clipDroplet" clipPathUnits="userSpaceOnUse">
+          <path
+            d="M 322.707031 239.828125 C 322.707031 314.550781 262.144531 375.128906 187.40625 375.128906 
+               C 112.667969 375.128906 52.085938 314.550781 52.085938 239.828125 
+               C 52.085938 165.089844 187.40625 0.0546875 187.40625 0.0546875 
+               C 187.40625 0.0546875 322.707031 165.089844 322.707031 239.828125"
+          />
+        </clipPath>
+
+        <!-- Waves grouped for bobbing -->
+        <g id="wavesGroup">
+          <path id="wave1" fill="#0081cc" clip-path="url(#clipDroplet)"></path>
+          <path id="wave2" fill="#0081cc" opacity="0.85" clip-path="url(#clipDroplet)"></path>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-inner card">
+      <div class="modal-header">
+        <h3 id="settingsTitle" class="headline">Settings</h3>
+        <button id="close-settings" class="icon-btn" aria-label="Close settings">✕</button>
+      </div>
+
+      <div class="field">
+        <label for="unit-select">Preferred unit</label>
+        <div class="select-wrap">
+          <select id="unit-select">
+            <option value="liters">Liters</option>
+            <option value="ml">Milliliters</option>
+            <option value="oz">Ounces</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="goal-input">Goal</label>
+        <input id="goal-input" type="number" min="0" step="0.01" inputmode="decimal" />
+      </div>
+
+      <div class="field">
+        <label for="increment-input">Increment per click</label>
+        <input id="increment-input" type="number" min="0" step="0.01" inputmode="decimal" />
+      </div>
+
+      <div class="modal-actions">
+        <button id="save-settings" class="pill-btn primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Modal -->
+  <div id="stats-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+    <div class="modal-inner card">
+      <div class="modal-header">
+        <h3 id="statsTitle" class="headline">Last 7 Days</h3>
+        <button id="close-stats" class="icon-btn" aria-label="Close stats">✕</button>
+      </div>
+      <div style="height: 300px;">
+        <canvas id="statsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
