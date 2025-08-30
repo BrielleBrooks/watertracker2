@@ -48,7 +48,7 @@ body {
   justify-content: center;
   border-radius: 20px;     /* rounded corners */
   overflow: hidden;        /* clip everything inside */
-  background: white;       /* use transparent for dark mode support */
+  background: transparent;       /* use transparent for dark mode support */
 }
 
 .card {
