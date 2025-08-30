@@ -141,7 +141,7 @@ input[type="number"], .select-wrap select{
 }
 input[type="number"]:focus, .select-wrap select:focus{
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: none;
 }
 .select-wrap{ position:relative; }
 .select-wrap::after{
