@@ -1,3 +1,15 @@
+html {
+  background: transparent !important;
+}
+
+body {
+  background: transparent !important;
+}
+
+:root {
+  background: transparent !important;
+}
+
 :root{
   --bg: #191919;
   --card: #191919;
@@ -46,12 +58,18 @@ body {
 .widget {
   width: 100% !important;
   height: 100% !important;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;     /* rounded corners */
-  overflow: hidden;        /* clip everything inside */
-  background: transparent; /* adaptive for light/dark mode */
+
+  border-radius: 20px;
+  overflow: hidden;
+
+  background: transparent;
+
+  /* NEW — forces true corner clipping */
+  isolation: isolate;
 }
 
 .card {
@@ -132,6 +150,11 @@ body {
   max-width: 360px;
   min-width: 140px;
   margin: clamp(10px, 2vw, 16px) auto 0;
+}
+
+svg,
+.modal {
+  border-radius: inherit;
 }
 
 /* -------- WAVES -------- */
